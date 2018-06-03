@@ -14,19 +14,8 @@
 //  In order to facilitate troubleshooting and calibration, the sendCommand and printConfig functions 
 //  allow for sending and receiving of coordinates through the serial monitor.
 
-
-
-
 #ifndef SCC_DRIVER_H   /* Include guard */
 #define SCC_DRIVER_H
-
-//includes
-#include <stdlib.h>
-#if defined(ARDUINO) && ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
 
 // Robotic arm link lengths
 #define L2 5.875//5.75

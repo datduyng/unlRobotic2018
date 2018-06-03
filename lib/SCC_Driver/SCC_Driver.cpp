@@ -3,7 +3,6 @@
 #include "math.h"
 #include "stdlib.h"
 #include "stdint.h"
-#include <new.h>
 
 float currConfig[4];
 float targetConfig[4];
@@ -36,10 +35,10 @@ void toConfiguration(float angles[], int duration){
   
   int outputs[5];
   
-  outputs[0] = (370 + angles[0]*(2220-500)/180);
+  outputs[0] = (560 + angles[0]*(2220-500)/180);
   outputs[1] = (750 + angles[1]*(1600-750)/90);
   outputs[2] = (600 + angles[2]*(1700-830)/90);
-  outputs[3] = (1010 + angles[3]*(2475-660)/180);
+  outputs[3] = (1010 + angles[3]*(2475-660)/180);//1010
   
   
   // Note the format of the data being written to the Servo driver board should appear like so:
@@ -98,6 +97,9 @@ void getConfiguration(float x, float y, float z, float *Configuration){
   //  at point input to coordinates. Coordinates are stored at array *Configuration, which is recommended to be
   //  global array targetConfig[4]
   
+  //TODO: remove this part 
+  //setTunings();
+  
   // Loads target position with coordinates
   targetPos[0] = x;
   targetPos[1] = y;
@@ -108,7 +110,7 @@ void getConfiguration(float x, float y, float z, float *Configuration){
   baseAngle = (-atan(y/x))*RADTODEG;
   if(baseAngle<0){baseAngle+=180;}
  
-
+  //Serial.print("Reach:");Serial.println(reach);
   // Calculates the reach necessary to grasp cane
   float reach = sqrt(x*x+y*y);
   float alpha;
@@ -182,6 +184,7 @@ void getConfiguration(float x, float y, float z, float *Configuration){
 	   } 
   }
   // If cane is within 8 inches of robotic arm base, inward configuration is solved for
+  /**
   if(reach < 8)
   {
 	//Serial.println("Position is too close to base, so inward configuration is used.");
@@ -219,7 +222,7 @@ void getConfiguration(float x, float y, float z, float *Configuration){
 	Serial.print("Wrist angle is ");
 	Serial.println(RADTODEG*wristAngle);  */
  
-	
+	/*
 	// Inverse sine in shoulderpartangle has two possible solutions for the range of 0-180 of the shoulder angle.
 	//  The asin() function outputs only angles from -90 to 90, ignoring larger values. Over the close range of the operating
 	//  zone close to the arm, this causes incorrect angular solutions, and a check must be made using forward kinematics to verify
@@ -256,7 +259,7 @@ void getConfiguration(float x, float y, float z, float *Configuration){
 		Configuration[1] = RADTODEG*shoulderAngle;
 	 }
 	
-  }
+  }*/
   
 }
 
@@ -297,12 +300,6 @@ void toCane(float x, float y, float z){
 	toPoint(x,y,z);
 }
 
-void iterate(void){
-	for( float x = 5.0f ; x < 12.0f ; x += 0.5f ){
-		toPoint(x, 5.0f, 5.0f );
-		delay(2000);
-	}
-}
 
 void toPoint(float x, float y, float z){
  	// Solves for the configuration, then writes the configuration necessary to place the end
@@ -311,7 +308,7 @@ void toPoint(float x, float y, float z){
 	getConfiguration(x, y, z, targetConfig);
 	
 	duration = getDuration();
-	toConfiguration(targetConfig, duration);
+	toConfiguration(targetConfig, 200);
 	
 	delay(duration);
 	
@@ -505,7 +502,7 @@ void closeClaw(void){
   
 	Serial1.begin(115200);
 	Serial1.print("#4P");
-    Serial1.print(2100);
+    Serial1.print(1450);
     Serial1.print("T");
     Serial1.println(100);
 	delay(500);
@@ -517,7 +514,7 @@ void openClaw(void){
 	
 	Serial1.begin(115200);
 	Serial1.print("#4P");
-    Serial1.print(1500);
+    Serial1.print(1250);
     Serial1.print("T");
     Serial1.println(100);
 	delay(500);
@@ -639,8 +636,8 @@ void sendPosition(void){
 	Serial.println("");
 	
 	facePoint(point[0], point[1], point[2]);
-	//toCane(point[0], point[1], point[2]);
-	toPoint(point[0], point[1], point[2]);
+	toCane(point[0], point[1], point[2]);
+	//toPoint(point[0], point[1], point[2]);
 	
 }
 
