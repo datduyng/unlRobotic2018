@@ -21,9 +21,9 @@
   //  WRIST SERVO       [0-180, 660-2475µs]
   //  GRIPPER SERVO:    (for grippers: ) OPEN:600, CLOSED:2300 
 
-/**********************************
-	Declare Global Variables
-**********************************/
+/*********************************************************************************************************
+*										Declare Global Variables										 *
+**********************************************************************************************************/
 float currConfig[4];
 float targetConfig[4];
 float prevPos[3];
@@ -32,6 +32,9 @@ float targetPos[3];
 float comparePos[3];
 int duration;
 
+/**********************************************************************************************************
+*									ARM POSITIONING AND CONFIGURATION									  *
+***********************************************************************************************************/
 
 /*
  *	Function: toConfiguration
@@ -41,12 +44,14 @@ int duration;
  *			  and send off the command into SCC-32U servo drive. It also update 
  *			  the current configuration array
  */
-// ARM POSITIONING AND CONFIGURATION ---------------------------------------------------------------------------//
-
 void toConfiguration(float angles[], int duration){
 
-    int outputs[5];
+  int outputs[5];
   
+	/*
+		the equation convert the joint space into actuator space, from degree to microsecond
+		adjust the first value to off set the servo rotation
+	*/
   outputs[0] = (560 + angles[0]*(2220-500)/180);
   outputs[1] = (750 + angles[1]*(1600-750)/90);
   outputs[2] = (600 + angles[2]*(1700-830)/90);
