@@ -35,7 +35,7 @@ extern char dataStream[DATALENGTH];
 typedef struct Ball{
 	uint8_t color;
 	int y;
-  int z;
+	int z;
 };
 
 extern Ball *balls;

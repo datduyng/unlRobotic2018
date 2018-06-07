@@ -11,46 +11,42 @@ int numOfPoint;
 
 
 void printStringToken(char** strArr, int n){
-  int i = 0;
-  for(i = 0;i < n; i++){
-    Serial.println(strArr[i]);
-  }
+	for( int i = 0 ; i < n ; i++ ){
+		Serial.println(strArr[i]);
+	}
 }
-int getDataStream(void){
 
-  //first clear all data in the struct
-  //TODO:
+int getDataStream(void){
 
     memset(dataStream, 0, DATALENGTH);
     memset(balls,0,sizeof(balls));
 
-  // Serial Communication with Raspberry Pi on Serial port 1 begins
-  Serial.begin(115200);
+	// Serial Communication with Raspberry Pi on Serial port 1 begins
+	Serial.begin(115200);
 
-  // Does nothing until serial transmission begins
-  while(Serial.available() == 0 ){Serial.println("input Stream");}
+	// Does nothing until serial transmission begins
+	while(Serial.available() == 0 ){Serial.println("input Stream");}
 
-int dataindex = 0;
-  while(Serial.available()> 0){
+	int dataindex = 0;
+	while(Serial.available()> 0){
 
-  // Fills datastream
-    if(dataindex < DATALENGTH-1)
-      {
+		// Fills datastream
+		if(dataindex < DATALENGTH-1){
 
-          char inChar = Serial.read(); // Read a character
-		      Serial.print("Parsing:");Serial.println(inChar);
-          dataStream[dataindex] = inChar; // Store it
-          dataindex++; // Increment where to write next
+			char inChar = Serial.read(); // Read a character
+			Serial.print("Parsing:");Serial.println(inChar);
+			dataStream[dataindex] = inChar; // Store it
+			dataindex++; // Increment where to write next
 
-      }
+		}
 
 
-    delayMicroseconds(100);
-  }
-  dataStream[dataindex] = '\0'; // Null terminate the string
-  Serial.flush();
+		delayMicroseconds(100);
+	}
+	dataStream[dataindex] = '\0'; // Null terminate the string
+	Serial.flush();
 
-Serial.print("DataStream(contain):");Serial.println(dataStream);
+	Serial.print("DataStream(contain):");Serial.println(dataStream);
 
   // validate package.
   // only use this validation when using hardcoding method.
