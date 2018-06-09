@@ -10,28 +10,15 @@ uint8_t* color;
 int16_t* y;
 int16_t* z;
 
-<<<<<<< HEAD
 int getDataStream(void){
-  // code Reuse fro last year competition
+  // code Reuse from last year competition
 
   //first clear all data in the struct
   memset(dataStream, 0, DATALENGTH);
-=======
 
-void printStringToken(char** strArr, int n){
-	for( int i = 0 ; i < n ; i++ ){
-		Serial.println(strArr[i]);
-	}
-}
+  // Serial Communication with Raspberry Pi on Serial port 1 begins
+  Serial.begin(115200);
 
-int getDataStream(void){
->>>>>>> cdb02aa9a0de493e1ac5dcbac69ae34ceaae7b5c
-
-
-	// Serial Communication with Raspberry Pi on Serial port 1 begins
-	Serial.begin(115200);
-
-<<<<<<< HEAD
   // Does nothing until serial transmission begins
   while(Serial.available() == 0 ){}
 
@@ -93,32 +80,6 @@ bool parseData(void){
   free(pointToken);
   for(int i = 0; i < numOfPoint; i++) free(stringToken[i]);
   free(stringToken);
-=======
-	// Does nothing until serial transmission begins
-	while(Serial.available() == 0 ){Serial.println("input Stream");}
-
-	int dataindex = 0;
-	while(Serial.available()> 0){
-
-		// Fills datastream
-		if(dataindex < DATALENGTH-1){
-
-			char inChar = Serial.read(); // Read a character
-			Serial.print("Parsing:");Serial.println(inChar);
-			dataStream[dataindex] = inChar; // Store it
-			dataindex++; // Increment where to write next
-
-		}
-
-
-		delayMicroseconds(100);
-	}
-	dataStream[dataindex] = '\0'; // Null terminate the string
-	Serial.flush();
-
-	Serial.print("DataStream(contain):");Serial.println(dataStream);
->>>>>>> cdb02aa9a0de493e1ac5dcbac69ae34ceaae7b5c
-
 
   //TODO: ERROR checking and return true if success ful else return false;
   printPoint();
