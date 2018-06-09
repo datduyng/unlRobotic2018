@@ -4,131 +4,99 @@
 #include <arduino.h>
 
 char dataStream[DATALENGTH];
-char ballmatrix[BALLPERFRAME];
+uint8_t numOfPoint;
 
-Ball *balls;
-int numOfPoint;
+uint8_t* color;
+int16_t* y;
+int16_t* z;
 
-
-void printStringToken(char** strArr, int n){
-  int i = 0;
-  for(i = 0;i < n; i++){
-    Serial.println(strArr[i]);
-  }
-}
 int getDataStream(void){
+  // code Reuse fro last year competition
 
   //first clear all data in the struct
-  //TODO:
+  memset(dataStream, 0, DATALENGTH);
 
-    memset(dataStream, 0, DATALENGTH);
-    memset(balls,0,sizeof(balls));
 
   // Serial Communication with Raspberry Pi on Serial port 1 begins
   Serial.begin(115200);
 
   // Does nothing until serial transmission begins
-  while(Serial.available() == 0 ){Serial.println("input Stream");}
+  while(Serial.available() == 0 ){}
 
-int dataindex = 0;
+  int dataindex = 0;
   while(Serial.available()> 0){
 
   // Fills datastream
     if(dataindex < DATALENGTH-1)
       {
-
           char inChar = Serial.read(); // Read a character
-		      Serial.print("Parsing:");Serial.println(inChar);
           dataStream[dataindex] = inChar; // Store it
           dataindex++; // Increment where to write next
-
       }
-
-
     delayMicroseconds(100);
   }
   dataStream[dataindex] = '\0'; // Null terminate the string
   Serial.flush();
 
-Serial.print("DataStream(contain):");Serial.println(dataStream);
-
-  // validate package.
-  // only use this validation when using hardcoding method.
-  // int sizeOfData = sizeof(dataStream)/ sizeof(char);
-  // if(sizeOfData ==4){
-  //   return 1;
-  // }else{
-  //   return -1;
-  // }
-
+  Serial.print("DataStream(contain): ");Serial.println(dataStream);
 }
 
 bool parseData(void){
-  /**
-   * This function parse data package
-   */
-   char **stringToken = NULL;
-   stringToken = split(dataStream,';',&numOfPoint);
-   printStringToken(stringToken, numOfPoint+1);
 
-   numOfPoint = atoi(stringToken[0]);
-   if(numOfPoint == 1){
+  //split package  to main token by ';'
+  char **stringToken = NULL;
+  stringToken = split(dataStream,';',&numOfPoint);
 
-	   //store the first data point
-	   int n = 0;// dummies.
-	   char **pointToken = split(stringToken[1],',',&n);
+  //store number of coordinate is passing
+  numOfPoint = atoi(stringToken[0]);
 
-	  // balls[0].color = (char)pointToken1[0][0];
-     // balls[0].y = atoi(pointToken[1]);
-     // balls[0].z = atoi(pointToken[2]);
-     balls[0].color = (uint8_t)'e';
-     balls[0].y = (int16_t) 90;
-     balls[0].z = (int16_t) 26;
-
-    Serial.println("=====");
-    Serial.print("pointOtk:(after)");Serial.println(balls[0].color);
-    Serial.print("pointy:(atof)");Serial.println(atoi(pointToken[1]));
-     Serial.print("pointy:()");Serial.println(balls[0].y);
-     Serial.print("pointz:()");Serial.println(balls[0].z);
+  // exit if receive bad data;
+  //TODO: added more validation
+  if(numOfPoint > 2 || numOfPoint < 1) {
+    //sSerial.println("fail in parse");
+    return false;
   }
-   else if(numOfPoint == 2){
 
-	   int n = 0;// dummies.
-	   //store the first data point
-	   char **pointToken1 = split(stringToken[1],',',&n);
-	   balls[0].color = (char)pointToken1[0][0];
-     balls[0].y = atoi(pointToken1[1]);
-	   balls[0].z = atoi(pointToken1[2]);
+  //set dynamic array size.
+  //create dynamic array size.
+  // make sure it only have a size of 1 or 2 acordingly to numOfPoint.
+  color = (uint8_t*) malloc(sizeof(uint8_t) * numOfPoint);
+  y = (int16_t*) malloc(sizeof(int16_t) * numOfPoint);
+  z = (int16_t*) malloc(sizeof(int16_t) * numOfPoint);
 
-	   //store the second data point.
-	    char **pointToken2 = split(stringToken[2],',',&n);
-	   balls[1].color = (char)pointToken2[0][0];
-     balls[1].y = atoi(pointToken2[1]);
-	   balls[1].z = atoi(pointToken2[2]);
+  char **pointToken = NULL;
+  for(int i = 0;i < numOfPoint; i++){
+    uint8_t n = 0 ;// dummies varable for debug or output valiedation
+    pointToken = split(stringToken[i+1],',',&n);
 
-   }
+    //deposit in to global variable
+    color[i] = atoi(pointToken[0]);
+    y[i] = atoi(pointToken[1]);
+    z[i] = atoi(pointToken[2]);
+  }
 
-   // int token = 1;
-   // for(int i = 0;i<numOfPoint;i++){
-   //
-   //   int n =0;
-   //   char **pointToken = split(stringToken[token],',',&n);
-   //   token++;
-   //   balls[i].color = (char)pointToken[0][0];
-   //    balls[i].y = atoi(pointToken[1]);
-   //   balls[i].z = atoi(pointToken[2]);
-   // }
-   //TODO:
-   // first token; number of data point.
-   // optional first or second.
-   // if numOfDat is 0 then ignore.
-   Serial.println("===print struct===");
-   printCoordinate(balls, numOfPoint);
-   Serial.println("===");
+
+  // free all 2d array token to prevent mem leak
+  for(int i = 0; i < numOfPoint; i++) free(pointToken[i]);
+  free(pointToken);
+  for(int i = 0; i < numOfPoint; i++) free(stringToken[i]);
+  free(stringToken);
+
+
+  //TODO: ERROR checking and return true if success ful else return false;
+  printPoint();
+  return true;
+}
+
+void printPoint(){
+  for(int i = 0; i<numOfPoint;i++){
+    Serial.print(color[i]);Serial.print(",");Serial.print(y[i]);Serial.print(",");Serial.print(z[i]);
+    Serial.println("");
+  }
 }
 
 
-char ** split(const char *str, char delimiter, int *n) {
+char ** split(const char *str, char delimiter, uint8_t *n) {
 
   int i, numDelimiters = 0;
   char delimit[] = {delimiter, '\0'};
@@ -151,33 +119,6 @@ char ** split(const char *str, char delimiter, int *n) {
   free(s);
   *n = (numDelimiters+1);
   return result;
-}
-
-
-// char* relativeSwap(char *data){
-  // char * copy = deepCopy(data);
-  // swap the 1st and 2nd
-  // char temp1 = *copy[0];
-  // copy[0] = copy[1];
-  // copy[1] = temp;
-
-  // swap 3rd and 4th
-  // char temp2 = *copy[2];
-  // *copy[2] = *copy[3];
-  // *copy[3] = temp;
-
-  // return copy;
-// }
-
-void printCoordinate(Ball *ballCoordinates, int n){
-  for(int i =0; i < n;i++){
-    Serial.println("");
-    Serial.print(ballCoordinates[i].color);
-    Serial.print(",");
-    Serial.print(ballCoordinates[i].y);
-    Serial.print(",");
-    Serial.println(ballCoordinates[i].z);
-  }
 }
 
 char * deepCopy(const char *s) {
