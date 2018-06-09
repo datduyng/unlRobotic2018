@@ -39,6 +39,14 @@ extern int16_t* z;
 extern uint8_t numOfPoint;
 
 
+<<<<<<< HEAD
+=======
+typedef struct Ball{
+	uint8_t color;
+	int y;
+	int z;
+};
+>>>>>>> cdb02aa9a0de493e1ac5dcbac69ae34ceaae7b5c
 
 // FUNCTION
 
