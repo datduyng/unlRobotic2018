@@ -1,0 +1,22 @@
+#######################################
+# Syntax Coloring Map For CameraArmDriver library
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+CameraArmDriver	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+
+
+begin	KEYWORD2
+end	KEYWORD2
+calibrate KEYWORD2
+turnBase KEYWORD2
+getCurrentBaseAngle KEYWORD2
+getCurrentShoulderAngle KEYWORD2
