@@ -28,9 +28,13 @@ static polar_t const LUT[NUMBER_OF_R][NUMBER_OF_Z] = {
 				Searching for the first number that is greater then the comparant 
 				and its next number is less then the comparant
 				compare the adjacent cell for the smallest range
-				Identify the four adjacent cell for bilinear interpolation
+				Identify the smallest range for two adjacent cells
+					--> One case is two cells are in diagonal cells
+					--> Another case is two cells are in vertical or horizontal
+				Identify the four adjacent cells for bilinear interpolation
+					--> Maybe need the second variables to get the four cells
 				
-				Call the second valuable and check if the second valuable is inbound
+				Call the second variables and check if the second variables is inbound
 				if success, both valuables agree, go for the inverse interpolation
 				if fail, abort the current cell and continue with search
 				
