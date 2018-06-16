@@ -24,8 +24,23 @@ static polar_t const LUT[NUMBER_OF_R][NUMBER_OF_Z] = {
 		};
 
 // milis inch, milis
+
+/**
+	local the four set of coordinates and do a bilinear reverse interpolation
+	
+	forward interpolation r = (r-r_1,1)/(r_1,2-r1)
+**/
 polar_t calibration ( polar_t input ){
 	polar_t local = {0, 0};
+	
+	for( uint8_t i = 0; i < NUMBER_OF_R ; i++ ){
+		for( uint8_t j = NUMBER_OF_Z-1; j != 0 ; j-- ){
+			if ( input.r > LUT[i][j] ) {
+				break;
+			}else if (
+			
+		}
+	}
 	int index1 =(input.r % 700);
 	int index2 = (input.z % 700)/2;
 	
