@@ -3,8 +3,8 @@
 - this lib will provide a tool to parse data package and tokenize it to global variable 
 where use can access by using this lib.
 - Packages Format:
-	- `2;66,12,32;82,43,53;`
-	- `1;82,103,12;`
+	- `2;66,12;82,43;`
+	- `1;82,103;`
 
 	- Where:
 
@@ -14,5 +14,4 @@ of the
 char 
 'B'
 		- 12(2nd Token,2nd Point): y-axis value being pass
-		- 32(2nd Token,3rd Point): z-axis value being pass
 - End the package format with `;` to ensure there will be no load of rubish.
