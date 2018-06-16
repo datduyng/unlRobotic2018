@@ -38,6 +38,8 @@ extern int16_t * y;
 extern int16_t* z;
 extern uint8_t numOfPoint;
 
+
+
 // FUNCTION
 
 /**
@@ -52,7 +54,7 @@ void printPoint();
  * data in dataStream char array  variable(gloabl variable)
  * return 1 if valid dataStream length got recieve
  */
-int getDataStream(void);
+bool getDataStream(void);
 
 /**
  *This function will parse data by using split function
@@ -61,6 +63,11 @@ int getDataStream(void);
  * return false; if spot incorrect formatted data.
  */
 bool parseData(void);
+
+/**
+ * This method compute and change the calibrate the coordinate 
+ * and deposite the coordinate to global variable
+ */
 
 /**
  * This function split the input string by a delimiter

@@ -2,15 +2,13 @@
 Author:	CheeTown Liew
 Version of June 10, 2017
 
-Modified By Dat nguyen
-Modified Date: 6/4/2018
 This algorithm is designed to drive the robot and run with precise displacement
-using motor encoder, the algorithm includes simple proportion controller and
+using motor encoder, the algorithm includes simple proportion controller and 
 displacement-encoder count convertor, speed comparator and path tracking.
 
 Micro-controller Board: Arduino Mega
 Motor Driver: Sabertooth Motor Driver
-Unit: inch
+ 
 */
 
 #ifndef Driving_h
@@ -25,8 +23,6 @@ Unit: inch
 #define INCH2C 227.1 * 48 / ( 3 * 3.141592653589 * 2 * 2 )
 #define COUNTER2INCHE ( 3 * 3.14159265359 * 2 * 2) / (227.1 * 48)
 #define WHEELWIDTH 11.6875
-#define WHEELRAD 1.5
-#define WHEELDIA 3
 
 //define default encoder pins
 #define ECLA    2 //LEFT encoder channel A
@@ -44,7 +40,6 @@ Unit: inch
 #define K2    0.5			//RIGHT controller constant
 #define V	1.3			//speed controller constant
 #define I	0.7		//integral controller constant
-
 
 //declare global coordinates
 extern float global_x;
@@ -66,6 +61,7 @@ extern bool debug1;
 static void counter1(void);
 static void counter2(void);
 
+
 //public functions--------------------------------------------------------
 void dinit (void);		//default initiator, needed before using the functions from this library
 //void dinit ( uint8_t& pins );
@@ -77,16 +73,10 @@ void debug(bool);
 
 
 //converter functions
-/*
- * this function compare the encoder count of 2 input counter.
- * if return positive Lcount is greater than R counter.
- * if negative Rcount is greater than Lcount
- */
-int comparator( int64_t L, int64_t R );
-
 int64_t D2C( float distance );
 float C2D (int64_t encoderCount);
-int64_t R2C ( int16_t angle ); // revolution to counter
-int16_t C2R ( int64_t encoderCount ); // counter to revolution
+int64_t R2C ( int16_t angle );
+int16_t C2R ( int64_t encoderCount );
 
 #endif
+

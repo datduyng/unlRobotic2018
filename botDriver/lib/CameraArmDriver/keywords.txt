@@ -16,7 +16,7 @@ CameraArmDriver	KEYWORD1
 
 begin	KEYWORD2
 end	KEYWORD2
-calibrate KEYWORD2
+turnShoulder KEYWORD2
 turnBase KEYWORD2
-getCurrentBaseAngle KEYWORD2
-getCurrentShoulderAngle KEYWORD2
+commandMode KEYWORD2
+

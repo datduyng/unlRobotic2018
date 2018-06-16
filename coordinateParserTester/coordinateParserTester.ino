@@ -7,16 +7,39 @@
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  pinMode(2,OUTPUT);
+  pinMode(3,OUTPUT);
+  digitalWrite(2,LOW);
+  digitalWrite(3,LOW);
+   
 
-  getDataStream();
-  if(parseData()){
-    Serial.println("Success parse");
-  }else{
-    Serial.println("fail parse");
-  }
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 
+    Serial.println("GO");
+    getDataStream();
+  if(parseData()){
+    Serial.println("Success parse");
+    digitalWrite(2,HIGH);
+    delay(1000);
+    digitalWrite(2,LOW);
+    delay(1000);
+    while(1);
+  }else{
+    Serial.println("fail parse");
+    digitalWrite(3,HIGH);
+    delay(1000);
+    digitalWrite(3,LOW);
+    delay(1000);
+    while(1);
+  }
+    digitalWrite(13,HIGH);
+    delay(1000);
+    digitalWrite(13,LOW);
+    delay(1000);
+
+    delay(1000);
 }
+

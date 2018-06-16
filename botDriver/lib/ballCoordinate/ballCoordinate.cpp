@@ -10,7 +10,7 @@ uint8_t* color;
 int16_t* y;
 int16_t* z;
 
-int getDataStream(void){
+bool getDataStream(void){
   // code Reuse from last year competition
 
   //first clear all data in the struct
@@ -19,7 +19,8 @@ int getDataStream(void){
   // Serial Communication with Raspberry Pi on Serial port 1 begins
   Serial.begin(115200);
 
-  // Does nothing until serial transmission begins
+  Serial.println("GO");
+
   while(Serial.available() == 0 ){}
 
   int dataindex = 0;
@@ -38,6 +39,7 @@ int getDataStream(void){
   Serial.flush();
 
   Serial.print("DataStream(contain): ");Serial.println(dataStream);
+  return true;
 }
 
 bool parseData(void){
