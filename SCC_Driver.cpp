@@ -212,7 +212,7 @@ void getConfiguration(float x, float y, float z, float *Configuration){
 			  
 */
 void toCane(float x, float y, float z){
-	
+	Serial.println("Bot driver");
 	// Robotic arm has been calibrated for radial positional accuracy on the plane comprised of the surface of the board
 	//  emperically found to be z=-4 with respect to the coordinates of the base of the robotic arm
 	// Any cane that is to be pulled must have its x and y coordinates transformed based on the calibration
