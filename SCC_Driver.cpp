@@ -52,7 +52,7 @@ void toConfiguration(float angles[], int duration){
 		the equation convert the joint space into actuator space, from degree to microsecond
 		adjust the first value to off set the servo rotation
 	*/
-  outputs[0] = (470 + angles[0]*(2220-500)/180);
+  outputs[0] = (560 + angles[0]*(2220-500)/180);
   outputs[1] = (750 + angles[1]*(1600-750)/90);
   outputs[2] = (600 + angles[2]*(1700-830)/90);
   outputs[3] = (1010 + angles[3]*(2475-660)/180);//1010
@@ -212,7 +212,7 @@ void getConfiguration(float x, float y, float z, float *Configuration){
 			  
 */
 void toCane(float x, float y, float z){
-	Serial.println("Bot driver");
+	
 	// Robotic arm has been calibrated for radial positional accuracy on the plane comprised of the surface of the board
 	//  emperically found to be z=-4 with respect to the coordinates of the base of the robotic arm
 	// Any cane that is to be pulled must have its x and y coordinates transformed based on the calibration
@@ -263,7 +263,7 @@ void toPoint(float x, float y, float z){
 	getConfiguration(x, y, z, targetConfig);
 	
 	duration = getDuration();
-	toConfiguration(targetConfig, 200);
+	toConfiguration(targetConfig, 100);
 	
 	delay(duration);
 	
@@ -418,32 +418,32 @@ void cutSequenceY(float x, float y, float z, float dist){
 void toReady(void){
   
   targetConfig[0] = 90;
-  targetConfig[1] = 135;
-  targetConfig[2] = 135;
-  targetConfig[3] = 90;
+  targetConfig[1] = 140;
+  targetConfig[2] = 80;
+  targetConfig[3] = 45;
 
-  toConfiguration(targetConfig, 500);
+  toConfiguration(targetConfig, 400);
   openClaw();
 }
 
 void depositItem(void){
 
-  targetConfig[0] = 190;
+  targetConfig[0] = 70;
   targetConfig[1] = 150;
-  targetConfig[2] = 137;
-  targetConfig[3] = 90;
+  targetConfig[2] = 110;
+  targetConfig[3] = 45;
   
-  toConfiguration(targetConfig, 750);
+  toConfiguration(targetConfig, 400);
   delay(750);
   openClaw();
 }
 
 void toFetal(void){
   
-  targetConfig[0] = 90;
-  targetConfig[1] = 180;
-  targetConfig[2] = 150;
-  targetConfig[3] = 0;
+  targetConfig[0] = 120;
+  targetConfig[1] = 110;
+  targetConfig[2] = 120;
+  targetConfig[3] = 160;
 
   toConfiguration(targetConfig, 250);
 }
@@ -536,6 +536,7 @@ void commandMode(void){
 	Serial.println("5 - Close Claw");
 	Serial.println("6 - Print Current Configuration    (DOES NOT REFLECT WRITES TO INDIVIDUAL MOTORS)");
 	Serial.println("7 - Print Current Position         (DOES NOT REFLECT WRITES TO INDIVIDUAL MOTORS)");
+	Serial.println("8 - Deposit Item");
 	 
 	int cmd;
 	
@@ -565,9 +566,11 @@ void commandMode(void){
 		if(cmd==7){
 			Serial.print("\n");
 			printPosition();
-		}
+			}
+		if (cmd==8){depositItem();}
 		
-		if(cmd>7){Serial.println("Please enter a Valid Command");}
+		
+		if(cmd>8){Serial.println("Please enter a Valid Command");}
 			
 	}
 	
@@ -638,6 +641,8 @@ void sendPosition(void){
 	facePoint(point[0], point[1], point[2]);
 	toCane(point[0], point[1], point[2]);
 	//toPoint(point[0], point[1], point[2]);
+	delay(750);
+	closeClaw();
 	
 }
 
