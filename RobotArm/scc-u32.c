@@ -29,9 +29,11 @@
 *********************************************************************************************/
 
 
-/* message buffer		*/
+/* file scope variable		*/
 #define BUFFER_SIZE	128
 static char msg[BUFFER_SIZE] = {};
+static int16_t baudrate;
+
 
 /* 
 	Function: conversion
@@ -40,7 +42,7 @@ static char msg[BUFFER_SIZE] = {};
 	Info	: convert joint space to actuator space
 			  Note that the argument is the pointer to the struct	
 */
-uint8_t conversion( joint_t *js, as_t *as ){
+uint8_t as_conversion( joint_t *js, as_t *as ){
 	uint8_t status = 0;
 	as_t local = {};
 	
@@ -53,9 +55,7 @@ uint8_t conversion( joint_t *js, as_t *as ){
 	static uint16_t const SHOULDER_SCALER = (uint16_t) ((float) (2420-556)/199.5f;
 	static uint16_t const ELBOW_SCALER = (uint16_t) ((float) (2410-556))/202.0f;
 	static uint16_t const WRIST_SCALER = (uint16_t) ((float) (2520-553))/197.0f;
-	
-	
-	
+		
 	local.azimuth = js->azimuth * AZIMUTH_SCALER + AZIMUTH_OFFSET;
 	local.shoulder = js->shoulder * SHOULDER_SCALER + SHOULDER_OFFSET;
 	local.elbow = js->elbow * ELBOW_SCALER + ELBOW_OFFSET;
@@ -69,7 +69,12 @@ uint8_t conversion( joint_t *js, as_t *as ){
 	return status;
 }
 
-/*	joint space boundcheck	*/
+/*	
+	Function: joint space boundcheck	
+	Param	: joint_t struct
+	Return	: flag, 0 for pass, 1 for error
+	
+*/
 uint8_t js_constain (joint_t *js){
 	uint8_t flag = 0;
 	
@@ -81,27 +86,25 @@ uint8_t js_constain (joint_t *js){
 	return flag;
 }
 
-float fconstrain( float input, float min, float max){
-	if( input < min){
-		return min;
-	}else if (input > max){
-		return max;
-	}
-	return input;
-}
+
 
 /* sending off servo cmd	*/
-uint8_t setConfig ( as_t *as ){
+uint8_t setConfiguration ( as_t *as ){
 	uint8_t flag = 0;
 	
-	
+	snprintf(msg, BUFFER_SIZE, "#0P%u#1P%u#2P%u#3P%uT%u\r\n", as->azimuth, as->shoulder, as->elbow, as->wrist); Serial.print(msg);
+		
 	
 	return flag;
 	
 }
 
+
 void commandMode(uint16_t baudrate);
 
+/**********************************************************************
+							User Interface
+***********************************************************************/
 
 void commandMode(uint16_t baudrate){
 	
@@ -133,7 +136,7 @@ void commandMode(uint16_t baudrate){
 			case 1;
 				toReady();break;
 			case 2:
-				sendPosition();break;
+				getPosition();break;
 			case 3:
 				Serial.println("Enter command in the format specified by LynxMotion documentation.");
 				Serial.println("EXAMPLE:\t\t#1P1500T1000");
@@ -155,62 +158,109 @@ void commandMode(uint16_t baudrate){
 }
 
 /*
-	Info	: Reading data from stream
-	Return	: integer from stream
+	Info	: Prompt User to key in three cartersian coordinates
+	Param	: Spatial Cartersian Coordinates
+	Return	: none
 */
-int16_t getinterger(void){
-	// Hold on to the Serial Port, pending incoming data
-
-	char cmd[2] = {};
-	char inChar, str[16];
-	uint8_t index = 0, i = 0;
-	
-	while( !Serial.available() ){}
-	delay(3);
-
-    while( Serial.available() ){
-
-	    if(index < 2){
-			
-			inChar = Serial.read(); // Read a character
-			cmd[index] = inChar; // Store it
-			index++; // Increment where to write next
-        }else{
-			inChar = Serial.read();
-			str[i] = inChar;
-			i++
-		}			
-        delay(3);
-    }
-	if( (*str) ){
-		Serial.print(str++);
-	}
-		
-
-	return atoi(command);
-}
-
-
-void sendPosition(void){
+void getPosition( point_t *pt ){
 
 	point_t local = {};
 	
 	Serial.println("Enter coordinates as prompted:");
 	
 	Serial.print("x-coordinate:        ");
-	point[0] = getCoordinate();
-	Serial.println(point[0]);
+	local.x = getfloat();
+	Serial.println(local.x);
 	
 	Serial.print("y-coordinate:        ");
-	point[1] = getCoordinate();
-	Serial.println(point[1]);
+	local.y = getfloat();
+	Serial.println(local.y);
 	
 	Serial.print("z-coordinate:        ");
-	point[2] = getCoordinate();
-	Serial.println(point[2]);
+	local.z = getfloat();
+	Serial.println(local.z);
 	Serial.println("");
 	
-	facePoint(point[0], point[1], point[2]);
-	toCane(point[0], point[1], point[2]);
+	pt = &local;
+	
+}
+
+void toPoint ( point_t *pt ){
+	joint_t js = {};
+	as_t as = {};
+	
+	if( !arm_checkBounds(pt) ){
+		inverseKinematic(pt, &js);
+		as_conversion( &js, &as );
+		setConfiguration(&as);
+		
+	}else{
+		// Unreachable
+		Serial.println("Coordinates Unreachable.");
+	}
+}
+
+
+/************************************************************
+					Utility Function
+*************************************************************/
+/* 	
+	Function: floating point constrain check		
+	Param	: input value, min and max value
+	Return	: constrained output
+*/
+float fconstrain( float input, float min, float max){
+	if( input < min){
+		return min;
+	}else if (input > max){
+		return max;
+	}
+	return input;
+}
+
+/*
+	Info	: Reading data from stream
+	Return	: signed integer from stream
+*/
+int16_t getinterger(void){
+	// Hold on to the Serial Port, pending incoming data
+
+	char cmd[8] = {};
+	uint8_t index = 0;
+	
+	while( !Serial.available() ){}
+	delay(3);
+
+    while( Serial.available() ){
+
+	    cmd[index++] = Serial.read();	// Read each character in buffer
+        delay(3);
+    }
+
+	return atoi(command);
+}
+
+/*
+	Info	: Reading data from stream
+	Return	: float from stream
+*/
+float getfloat(void){
+	// Hold on to the Serial Port, pending incoming data
+
+	char cmd[8] = {};
+	uint8_t index = 0;
+	
+	while( !Serial.available() ){}
+	delay(3);
+
+    while( Serial.available() ){
+
+	    cmd[index++] = Serial.read();	// Read each character in buffer
+        delay(3);
+    }
+
+	return atof(command);
+}
+
 
 }

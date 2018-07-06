@@ -8,4 +8,11 @@ struct as_t{
 	uint16_t wrist;
 }
 
+uint8_t asconversion( joint_t *js, as_t *as );
+
+uint8_t js_constain (joint_t *js);
+
+float fconstrain( float input, float min, float max);
+
+uint8_t setConfig ( as_t *as );
 #endif

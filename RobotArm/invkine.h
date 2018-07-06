@@ -17,16 +17,19 @@
 
 /* Define typedef struct*/
 struct point_t{
+#ifdef UNIT_ENGLISH
 	float x;
 	float y;
 	float z;
-};
-
-struct point_mm_t{
+#else
+#ifdef UNIT_METRIC
 	int16_t x;
 	int16_t y;
 	int16_t z;
+#endif
+#endif
 };
+
 
 struct joint_t{
 	float azimuth;

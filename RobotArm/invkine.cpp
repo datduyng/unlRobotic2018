@@ -35,16 +35,17 @@
 	#define L4	(int32_t)115		// Wrist to grabbing point distance
 #endif
 
+/*
 point_mm_t point;
 joint_t currconfig;
-
+*/
 
 /*	Functions	*/
 
 /*
 	Function: arm_checkBounds
 	Param	: point_t (cartesian coordinates)
-	Return	: flag
+	Return	: flag, 0 for success, 1 for failure
 	Info	: Make sure the given coordinates is reachable
 */
 
@@ -138,6 +139,8 @@ uint8_t inverseKinematic ( point_t *point , joint_t *js ){
 		complementary = acos( ratio );
 	}else{
 		// Something bad happens
+		ret = 1;
+		return ret;
 	}
 	
 	local.elbow = (M_PI - complementary) * RADTODEG;
@@ -154,6 +157,8 @@ uint8_t inverseKinematic ( point_t *point , joint_t *js ){
 		alti2 = asin(ratio2);
 	}else{
 		// Something bad happens
+		ret = 1;
+		return ret;
 	}
 	
 	/*	Inverse Sine return -pi/2 to pi/2, shifting it into 0 to pi/2	*/
