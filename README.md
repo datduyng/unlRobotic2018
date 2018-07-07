@@ -1,17 +1,19 @@
-### Update 06/09/16 
+# unlRobotics 
+- This channel keep all arduino src code for the unl Robotics Team. 
+
+## Update 06/09/16 
 - added ballCoordinate.h lib 
 - this lib will provide a tool to parse data package and tokenize it to global variable 
 where use can access by using this lib.
-- Packages Format:
-	- `2;66,12;82,43;`
-	- `1;82,103;`
 
-	- Where:
-
-		- 2(1st Token): # of coordinate that contain in the package
-		-66(2nd Token,1st Point): represent the color of the ball.represent in ascii 
-of the 
-char 
-'B'
-		- 12(2nd Token,2nd Point): y-axis value being pass
-- End the package format with `;` to ensure there will be no load of rubish.
+## link to Library ( 2018) 
+- `Driving.h`
+	- https://github.com/datduyng/Driving.git
+- `SCC_Driver.h`
+	- https://github.com/datduyng/SCC_Driver.git
+- `ballCoordinate.h`
+	- https://github.com/datduyng/ballCoordinate.git
+- `robotPlanner.h`
+	- https://github.com/datduyng/RobotPlanner.git
+- `CameraArmDriver.h` 
+	- https://github.com/datduyng/CameraArmDriver.git
