@@ -27,16 +27,21 @@ void loop() {
       if(noStop == 0){// first stop 
         driveto(18);
       }else if(noStop == NO_STOP_PER_ROW-1){// last stop 
-        driveto(5);
+        int wallOffset = sonarDistComparator(); // make sure that the bot is parallel to
+        if(abs(wallOffset) >= 2) goParallel(5); // the wall, if not fix it self. 
+        else                     driveto(5);
+        
       }else{
-        driveto(10);
+        int wallOffset = sonarDistComparator();
+        if(abs(wallOffset) >= 2) goParallel(10);
+        else                     driveto(10);
       }
 
-      if(getDataStream()){
-        Serial.println("got package");
-      }
-      // trigger the camera 
-      parseData();
+//      if(getDataStream()){
+//        Serial.println("got package");
+//      }
+//      // trigger the camera 
+//      parseData();
 
       //TODO: 
       

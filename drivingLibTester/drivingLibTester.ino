@@ -35,26 +35,7 @@ void loop() {
   driveto(71.25);
   */
 
-  driveto(20);
-  delay(100);
-  steer(-90);
-  delay(1000);
-  steer(90);
-
-delay(100);
-  driveto(20);
-  delay(100);
-  steer(-90);
-  delay(1000);
-  steer(90);
-delay(100);
-   driveto(20);
-  delay(100);
-  steer(-90);
-  delay(1000);
-  steer(90);
-  delay(1000);
-  steer(90);
+driveto(10);
   while(1);
   // 71.
   // 22.3125 in 

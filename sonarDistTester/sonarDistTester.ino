@@ -11,12 +11,13 @@ void setup() {
   Serial.begin(9600);
 }
 
+const int left_offset = 1; 
 void loop() {
   // put your main code here, to run repeatedly:
   int stop = 12; 
   Serial.println("==================================");
   for(int i = 0; i < stop; i++){
-    Serial.print(getSonarLeftDistance());
+    Serial.print(getSonarLeftDistance() - left_offset );
     Serial.print(",");
     Serial.print(getSonarRightDistance());
     Serial.println();
