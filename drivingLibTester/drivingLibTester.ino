@@ -6,7 +6,7 @@ void setup() {
  // SabertoothSimplified motordriver(Serial3); 
   // put your setup code here, to run once:
   dinit();
-//  debugMode();
+//  debugMode();                                              
   //imuInit();
  // Serial3.begin(19200);
 //      motordriver.motor(1, 100);

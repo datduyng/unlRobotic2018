@@ -1,6 +1,14 @@
   // 71.25 // competition
   // 22.3125 in 
+// 2;0,7.5,4,11;2,7.5,9,7;
+// 2;0,7.5,4,9;2,7.5,9,5;
 
+// 
+/**
+ * R: 0
+ * B: 1
+ * G : 2 
+ */
   //18in first move in row 
   //10 inches from there on. 
 #include<Driving.h>
@@ -138,44 +146,33 @@ void initRobotArmPos(){
 }
 
 void processRobotArm(){
-   for(int i =0; i<4; i++){
-      if(color[i]>0){
-        switch(i){
-          case 0:
-          //
-          toCane(COOR_X_1,COOR_Y_1,COOR_Z_1);
+  Serial.print("numpoint: ");Serial.println(numOfPoint);
+   for(int i =0; i<numOfPoint; i++){
+      if(color[i] == 0){ // red
+          toPoint(x[i],y[i],z[i]);
           openClaw();
           closeClaw();
-          toCane(COOR_X_DROP,COOR_Y_DROP,COOR_Z_DROP);
-          openClaw();
-          closeClaw();
-          break;
 
-          case 1:
-          //facePoint(COOR_X_2,COOR_Y_2,COOR_Z_2);
-          toCane(COOR_X_2,COOR_Y_2,COOR_Z_2);
+          //TODO: change to deposit 
+          depositItem();
+//          toPoint(x[i],y[i],z[i]);
+//          openClaw();
+//          closeClaw();
+      }else if(color[i] == 2){// blue
+          toPoint(x[i],y[i],z[i]);
           openClaw();
           closeClaw();
-          toCane(COOR_X_DROP,COOR_Y_DROP,COOR_Z_DROP);
-          break;
 
-          case 2:
-          //facePoint(COOR_X_3,COOR_Y_3,COOR_Z_3);
-          toCane(COOR_X_3,COOR_Y_3,COOR_Z_3);
-          openClaw();
-          closeClaw();
-          toCane(COOR_X_DROP,COOR_Y_DROP,COOR_Z_DROP);
-          break;
-
-          case 3:
-          //facePoint(COOR_X_4,COOR_Y_4,COOR_Z_4);
-          toCane(COOR_X_4,COOR_Y_4,COOR_Z_4);
-          openClaw();
-          closeClaw();
-          toCane(COOR_X_DROP,COOR_Y_DROP,COOR_Z_DROP);
-          break;
-        }
+          //TODO: change to deposit 
+//          toPoint(x[i],y[i],z[i]);
+//          openClaw();
+//          closeClaw();
+      }else{
+        
       }
+
+      //GO back to ready position after every time the arm pick apple. 
+      toReady(); 
     }// end for
 }
 
