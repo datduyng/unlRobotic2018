@@ -15,8 +15,14 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  driveto(30);
-//  delay(100);
+  driveto(10);
+  delay(100);
+    driveto(10);
+  delay(100);
+    driveto(10);
+  delay(100);
+    driveto(10);
+  delay(100);
 //  steer(90);
 //   delay(1000);
 //  steer(-90);

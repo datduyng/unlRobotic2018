@@ -1,7 +1,8 @@
   // 71.25 // competition
   // 22.3125 in 
-// 2;0,7.5,4,11;2,7.5,9,7;
-// 2;0,7.5,4,9;2,7.5,9,5;
+// ;0,7.5,4,11;2,7.5,9,7;
+// ;0,7.5,4,9;2,7.5,9,5;
+//;0,7.5,4,9;2,7.5,9,9;
 
 // 
 /**
@@ -71,7 +72,6 @@ void loop() {
       
       if(getDataStream(cameraArm.getCameraFacePosition())){
         Serial.println("got package");
-        parseData();
       }else{
         digitalWrite(led,HIGH);
         delay(1000);
@@ -81,13 +81,12 @@ void loop() {
       delay(1000);
       cameraArm.rest()  ;
       delay(1000);
-      processRobotArm();
+      processRobotArm(parseData());
         
       cameraArm.turn('l');
       
       if(getDataStream(cameraArm.getCameraFacePosition())){
         Serial.println("got package");
-        parseData();
       }else{
         digitalWrite(led,HIGH);
         delay(1000);
@@ -98,7 +97,7 @@ void loop() {
       cameraArm.rest()  ;
       delay(1000);
       // go pci each ball. 
-       processRobotArm();
+       processRobotArm(parseData());
 
     }
     
@@ -145,9 +144,11 @@ void initRobotArmPos(){
   toReady();
 }
 
-void processRobotArm(){
+void processRobotArm(bool isBall){
   Serial.print("numpoint: ");Serial.println(numOfPoint);
-   for(int i =0; i<numOfPoint; i++){
+
+  if(isBall == true){// process arm if there is ball 
+    for(int i =0; i<numOfPoint; i++){
       if(color[i] == 0){ // red
           toPoint(x[i],y[i],z[i]);
           openClaw();
@@ -174,5 +175,9 @@ void processRobotArm(){
       //GO back to ready position after every time the arm pick apple. 
       toReady(); 
     }// end for
+  }else{ // don't process if there is no ball. 
+    
+  }
+   
 }
 
