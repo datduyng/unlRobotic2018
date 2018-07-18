@@ -7,21 +7,36 @@ Master control of competition rover with affiliate libraries.
 
 Please resolve conflict before you commit the files. Branch off if necessary.
 
-### Update 06/09/16 
-- added ballCoordinate.h lib 
+### Update 07/28/18 
+##### updated ballCoordinate.h lib 
 - this lib will provide a tool to parse data package and tokenize it to global variable 
 where use can access by using this lib.
 - Packages Format:
-	- `2;66,12;82,43;`
-	- `1;82,103;`
+	 * ;C1,x1,y1,z1;C2,x2,y2,z2;.....; 
+	 * ;1,5,12,32;0,12,43,53;
+	 * ;1,3,103,12;
+	 *
+	 * Where:
+	 * C: color where ( R:0, g:1, b:2)
+	 * x: x-axis value being pass. 
+	 * y: y-axis value being pass
+	 * z: z-axis value being pass
 
-	- Where:
-
-		- 2(1st Token): # of coordinate that contain in the package
-		-66(2nd Token,1st Point): represent the color of the ball.represent in ascii 
-of the 
-char 
-'B'
-		- 12(2nd Token,2nd Point): y-axis value being pass
 - End the package format with `;` to ensure there will be no load of rubish.
 
+##### updated CameraArmDriver.h lib 
+- recalibrate every time switching servo
+
+
+### Link to lib.
+
+- `Driving.h`
+	- [Driving.h](https://github.com/datduyng/Driving.git)
+- `SCC_Driver.h`
+	- [SCC_Driver](https://github.com/datduyng/SCC_Driver.git)
+- `ballCoordinate.h`
+	- [ballCoordinate.h](https://github.com/datduyng/ballCoordinate.git)
+- `robotPlanner.h`
+	- [robotPlanner](https://github.com/datduyng/RobotPlanner.git)
+- `CameraArmDriver.h` 
+	- [CameraArmDriver.h](https://github.com/datduyng/CameraArmDriver.git)
