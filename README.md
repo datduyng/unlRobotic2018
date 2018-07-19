@@ -17,3 +17,9 @@ where use can access by using this lib.
 	- [robotPlanner](https://github.com/datduyng/RobotPlanner.git)
 - `CameraArmDriver.h` 
 	- [CameraArmDriver.h](https://github.com/datduyng/CameraArmDriver.git)
+- `LiquidCrystal_I2C.h`
+	- [LiquidCrystal_I2C.h](https://github.com/fdebrabander/Arduino-LiquidCrystal-I2C-library)
+- `NewPing.h`
+	- [NewPing](https://github.com/microflo/NewPing)
+- `SabertoothSimplified.h`
+	- [find in this repo](https://github.com/vrege/RoboConBPGC)
