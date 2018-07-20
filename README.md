@@ -6,6 +6,14 @@
 - this lib will provide a tool to parse data package and tokenize it to global variable 
 where use can access by using this lib.
 
+
+## Update 07/20/18
+- added lcd to the bot for live debuging 
+	- see `botMain.ino` sketches for more detail 
+- added back sonar to increase accuracy
+- fixed CameraArmDriver facePos bug
+- Raspberry pi will communicate with arduino through `Serial2`
+
 ## link to Library ( 2018) 
 - `Driving.h`
 	- [Driving.h](https://github.com/datduyng/Driving.git)
