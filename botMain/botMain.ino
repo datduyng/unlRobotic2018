@@ -6,7 +6,7 @@
    * '4':   ;0,7.5,2.25,7;
    * ;0,7.5,7.5,11;0,7.5,2.25,11;0,7.5,7.5,7;0,7.5,2.25,7;
    */
-
+  //TODO: add OFFSET from camera arm to robotarm is .158 inch 
 //
 /**
  * R: 0
@@ -25,7 +25,12 @@
 // initialize the interface pins
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set address 
 CameraArmDriver cameraArm;
+int sonarOffset[4] = {-3,-2, -3,0};
 
+enum STATUS {
+  ALL_OPEN, 
+  
+};
 const int NO_ROW= 4 ;
 #define NO_STOP_PER_ROW 5 // the last stop is half of 1 regular stop.
 #define led 22
@@ -33,6 +38,7 @@ const int NO_ROW= 4 ;
 bool firstStart = true;
 
 void initRobotArmPos();
+void processPerRow();
 
 void setup() {
  Serial.begin(115200);
@@ -44,6 +50,9 @@ void setup() {
 
 
   dinit();// the sonar will init also .
+
+  //set sonar offset. 
+  setSonarOffset(sonarOffset);//update offset 7/23/18
 //  Serial.begin(9600);
   cameraArm.cameraArmBegin(6, 7);
   cameraArm.rest();
@@ -66,124 +75,7 @@ void loop() {
     //TODO:
     delay(100);
 
-    //run per row
-    for(int noStop = 0;noStop < NO_STOP_PER_ROW;noStop++){
-
-        int rightDist =  getSonarRightDistance();
-        int leftDist =  getSonarLeftDistance();
-        int wallOffset = rightDist - leftDist; // make sure that the bot is parallel to
-      if(noStop == 0 && firstStart != true){// first stop
-          lcd.clear();
-          lcd.print("begin of 1 row");
-//        driveto(12);
-      }else if(noStop == NO_STOP_PER_ROW-1&& firstStart != true){// last stop
-        if(abs(wallOffset) >= 3){
-          lcd.clear();
-          lcd.print("NP-last-go 5");
-          lcd.setCursor(0,1);
-          lcd.print("fixing....");
-          goParallel(5,leftDist,rightDist); // the wall, if not fix it self.
-        }
-        else{
-          lcd.clear();
-          lcd.print("Par-last-go 5");
-          driveto(5);
-        }
-        
-      }else if(firstStart != true){
-        if(abs(wallOffset) >= 3){
-          lcd.clear();
-          lcd.print("NP-mid-go 10");
-          lcd.setCursor(0,1);
-          lcd.print("fixing....");
-          goParallel(10,leftDist,rightDist);
-        }
-        else{
-          lcd.clear();
-          lcd.print("Par-mid-go 10");
-          driveto(10);
-        }
-
-      }
-      firstStart = false;
-      //check parallel everytime the bot stop 
-//      checkParallel(); 
-
-      // trigger the camera
-
-
-      //TODO:
-      lcd.clear();
-      lcd.print("Arm toReady");
-      toReady(); // arm to ready position
-
-
-      
-      //raise camera, take picture, then process image.
-      cameraArm.turn('r');
-      lcd.clear();
-      lcd.print(String("arm pos: ")+
-                String(cameraArm.getCameraFacePosition()) );
-
-      // update before sending to rasp.
-      rightDist =  getSonarRightDistance();
-      leftDist =  getSonarLeftDistance();
-      wallOffset = rightDist - leftDist; // make sure that the bot is parallel to
-      char packageToPi[30];
-
-      //don't trust reading if sonaroffset is 1111 or -1111 
-      sprintf(packageToPi,";%d;%d;",wallOffset,cameraArm.getCameraFacePosition());
-
-      lcd.clear();
-      lcd.print(String("Package send to rasp"));
-      lcd.setCursor(2,1);
-      lcd.print(String(packageToPi));
-
-      if(getDataStream(packageToPi)){
-        lcd.clear();
-        lcd.print("got package");
-      }else{
-        lcd.clear();
-        lcd.print("NA package ");
-      }
-      delay(1000);
-      cameraArm.rest()  ;
-      delay(1000);
-      
-      lcd.clear();
-      lcd.print("unpackaging");
-      lcd.setCursor(0,1);
-      lcd.print("processing arm");
-      processRobotArm(parseData());
-
-      cameraArm.turn('l');
-      
-      lcd.clear();
-      lcd.print(String("arm pos: ")+
-                String(cameraArm.getCameraFacePosition()) );
-
-      //don't trust reading if sonaroffset is 1111 or -1111 
-      sprintf(packageToPi,";%d;%d;",wallOffset,cameraArm.getCameraFacePosition());
-
-      lcd.clear();
-      lcd.print(String("Package send to rasp"));
-      lcd.setCursor(2,1);
-      lcd.print(String(packageToPi));
-      
-      if(getDataStream(packageToPi)){
-        lcd.clear();
-        lcd.print("got package");
-      }else{
-        lcd.clear();
-        lcd.print("NA package ");
-      }
-      delay(1000);
-      cameraArm.rest()  ;
-      delay(1000);
-      // go pci each ball.
-       processRobotArm(parseData());
-
-    }
+    processPerRow();
 
     lcd.clear();
     lcd.print("end of row- go 19.5");
@@ -224,7 +116,7 @@ void loop() {
       // equal.
       // some malfunction maybe ???
     }
-  }// end for
+  }// end for(NO_ROW)
   while(1);
 }// end loop
 
@@ -236,7 +128,7 @@ void initRobotArmPos(){
 }
 
 void processRobotArm(bool isBall){
-  Serial.print("numpoint: ");Serial.println(numOfPoint);
+//  Serial.print("numpoint: ");Serial.println(numOfPoint);
 
   if(isBall == true){// process arm if there is ball
     lcd.clear();
@@ -251,8 +143,9 @@ void processRobotArm(bool isBall){
           String(x[i])+String(",")+
           String(y[i])+String(",")+
           String(z[i]));
-          
-          toPoint(x[i],y[i],z[i]);
+
+          facePoint(x[i],y[i],z[i]);
+          toCane(x[i],y[i],z[i]);
           openClaw();
           closeClaw();
 
@@ -267,7 +160,9 @@ void processRobotArm(bool isBall){
           String(x[i])+String(",")+
           String(y[i])+String(",")+
           String(z[i]));
-          toPoint(x[i],y[i],z[i]);
+          
+          facePoint(x[i],y[i],z[i]);
+          toCane(x[i],y[i],z[i]);
           openClaw();
           closeClaw();
 
@@ -288,4 +183,149 @@ void processRobotArm(bool isBall){
        lcd.print("no apple at this zone. ");
   }
 
+}
+
+void processPerRow(){
+      //run per row
+    for(int noStop = 0;noStop < NO_STOP_PER_ROW;noStop++){
+
+        int rightDist =  getSonarRight();
+        int leftDist =  getSonarLeft();
+        int wallOffset = rightDist - leftDist; // make sure that the bot is parallel to
+      if(noStop == 0 && firstStart != true){// first stop
+          lcd.clear();
+          lcd.print("begin of 1 row");
+//        driveto(12);
+      }else if(noStop == NO_STOP_PER_ROW-1&& firstStart != true){// last stop
+        if(abs(wallOffset) >= 3){
+          lcd.clear();
+          lcd.print("NP-last-go 5");
+          lcd.setCursor(0,1);
+          lcd.print("fixing....");
+          goParallel(5,leftDist,rightDist); // the wall, if not fix it self.
+        }
+        else{
+          lcd.clear();
+          lcd.print("Par-last-go 5");
+          driveto(5);
+        }
+        
+      }else if(firstStart != true){
+        if(abs(wallOffset) >= 3){
+          lcd.clear();
+          lcd.print("NP-mid-go 10");
+          lcd.setCursor(0,1);
+          lcd.print("fixing....");
+          goParallel(10,leftDist,rightDist);
+        }
+        else{
+          lcd.clear();
+          lcd.print("Par-mid-go 10");
+          driveto(10);
+        }
+
+      }
+      firstStart = false;
+      
+      //check parallel everytime the bot stop 
+      lcd.clear();
+      lcd.print("Check Parall..");
+      int offBy = checkParallel(); 
+
+      lcd.setCursor(0,1);
+      lcd.print(String("turn: ")+
+                String(offBy));
+  
+      // trigger the camera
+
+
+      //TODO:
+      lcd.clear();
+      lcd.print("Arm toReady");
+      toReady(); // arm to ready position
+
+
+      
+      //raise camera, take picture, then process image.
+      cameraArm.turn('r');
+      lcd.clear();
+      lcd.print(String("arm pos: ")+
+                String(cameraArm.getCameraFacePosition()) );
+
+      // update before sending to rasp.
+      rightDist =  getSonarRight();
+      leftDist =  getSonarLeft();
+      wallOffset = rightDist - leftDist; // make sure that the bot is parallel to
+      char packageToPi[30];
+
+      //don't trust reading if sonaroffset is 1111 or -1111 
+      sprintf(packageToPi,";%d,%d;",wallOffset,cameraArm.getCameraFacePosition());
+
+      lcd.clear();
+      lcd.print(String("Package send to rasp"));
+      lcd.setCursor(2,1);
+      lcd.print(String(packageToPi));
+
+      if(getDataStream(packageToPi)){
+        lcd.clear();
+        lcd.print("got package");
+      }else{
+        lcd.clear();
+        lcd.print("NA package ");
+      }
+      delay(1000);
+      cameraArm.rest()  ;
+      delay(1000);
+      bool gotPackage = parseData();
+      if(gotPackage){
+        lcd.clear();
+        lcd.print("parsing Package");
+      }else{
+        lcd.clear();
+        lcd.print("no Package");
+      }
+      
+      lcd.setCursor(0,1);
+      lcd.print("processing arm");
+      processRobotArm(gotPackage);
+
+      cameraArm.turn('l');
+      
+      lcd.clear();
+      lcd.print(String("arm pos: ")+
+                String(cameraArm.getCameraFacePosition()) );
+
+      //don't trust reading if sonaroffset is 1111 or -1111 
+      sprintf(packageToPi,";%d,%d;",wallOffset,cameraArm.getCameraFacePosition());
+
+      lcd.clear();
+      lcd.print(String("Package send to rasp"));
+      lcd.setCursor(2,1);
+      lcd.print(String(packageToPi));
+      
+      if(getDataStream(packageToPi)){
+        lcd.clear();
+        lcd.print("got package");
+      }else{
+        lcd.clear();
+        lcd.print("NA package ");
+      }
+      delay(1000);
+      cameraArm.rest()  ;
+      delay(1000);
+      // go pci each ball.
+       processRobotArm(parseData());
+
+    }//end for NO STOP
+}// end processPerRow()
+
+/**
+ * This function check if the bot is at the right position to turn.
+ */
+int getReadyToTurn(){
+  //11 5/8 inch is position to turn the bot.
+  //13 cm from the side.s
+  const int beforeTurnDist = 14;//5.625 inches
+  float frontDist = checkFrontDistTravel();
+  driveto((float)(beforeTurnDist - frontDist) * INCH_TO_CM);
 }
