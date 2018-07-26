@@ -31,3 +31,5 @@ where use can access by using this lib.
 	- [NewPing](https://github.com/microflo/NewPing)
 - `SabertoothSimplified.h`
 	- [find in this repo](https://github.com/vrege/RoboConBPGC)
+- `botConst.h`
+	- [botConst.h](https://github.com/datduyng/botConst)
