@@ -1,5 +1,5 @@
 #include<Driving.h> 
-int sonarOffset[4] = {-1,-1, -1,-1};
+int sonarOffset[5] = {-1,-1, -1,-1,-1};
 
 void setup() {
   // put your setup code here, to run once:
@@ -14,9 +14,10 @@ void setup() {
 //    updateSonar();
     Serial.print("left: ");Serial.print(getSonarLeft());
    Serial.print(", right: ");Serial.print(getSonarRight());
-  Serial.print(", back: ");Serial.print(getSonarLeftBack());
+  Serial.print(", backLeft: ");Serial.print(getSonarLeftBack());
   Serial.print(", Front: ");Serial.print(getSonarFront());
-Serial.println();
+  Serial.print(", Back: ");Serial.print(getSonarBack());
+  Serial.println();
 
   delay(1000);
 }
