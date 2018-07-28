@@ -12,10 +12,10 @@
  * R: 0
  * B: 1
  * G : 2
+ * This program test the sequence drive of the bot.
  */
   //18in first move in row
   //10 inches from there on.
-
 #include<Driving.h>
 #include <CameraArmDriver.h>
 #include <SCC_Driver.h>
@@ -26,18 +26,29 @@
 // initialize the interface pins
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set address 
 CameraArmDriver cameraArm;
+const int sonarOffset[4] = {-2,-1, -2,-1};
+const int beforeTurnDist = 15;//5.625 inches
+const int wallOffsetThresh = 7; 
+
+enum STATUS {
+  ALL_OPEN, 
+  
+};
+const int NO_ROW= 4 ;
+#define NO_STOP_PER_ROW 5 // the last stop is half of 1 regular stop.
+#define led 22
+
 bool firstStart = true;
-int sonarOffset[4] = {-1,-1, -1,-1};
+
 /**
  * This function check if the bot is at the right position to turn.
  * return distance that the bot  that it has to travel to fix. 
  */
 float getReadyToTurn();
-void processPerRow();
-void initRobotArmPos();
-void processRobotArm(bool isBall);
 
 void checkSonar(int period, int refresh);
+void initRobotArmPos();
+void processRobotArm(bool isBall);
 
 void setup() {
  Serial.begin(115200);
@@ -69,67 +80,8 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  for(int i = 0; i < NO_ROW;i++){
-    //TODO:
-    delay(100);
-
-    processPerRow();
-
-    lcd.clear();
-    lcd.print("end of row- go 19.5");
-    driveto(20);
-    // total move: 71.25 inches
-    // competition drive sequence go here .
-
-    int distComp = sonarDistComparator();
-
-    lcd.clear();
-    lcd.print("open row?-O"+String(distComp));
-
-    // if have one robot running
-    if(i==NO_ROW-2){// reverse the sign at the last turn
-     distComp = -distComp;
-    }
-
-    // don't turn at the end of last row.
-    if(distComp >= 1 && i != NO_ROW-1){// turn right if right is open
-      lcd.clear();
-      lcd.print("turn right....");
-      delay(100);
-      
-      //fix the bot distance make sure it has reach the right point to turn 
-      getReadyToTurn();
-      
-      delay(100);
-      steer(90);
-      delay(100);
-      driveto(24);
-
-      //turn begin at the new row. 
-      delay(100);
-      steer(90);
-    }else if(distComp <= 1&& i != NO_ROW-1){// turn left if left is open
-      lcd.clear();
-      lcd.print("turn left....");
-      delay(100);
-
-      //fix the bot distance make sure it has reach the right point to turn 
-      getReadyToTurn();
-      
-      delay(100);
-      steer(-90);
-      delay(100);
-      driveto(24);
-      
-      //turn begin at the new row. 
-      delay(100);
-      steer(-90);
-    }else{
-      // equal.
-      // some malfunction maybe ???
-    }
-  }// end for(NO_ROW)
+  getReadyToTurn(); 
+  steer(-90);
   while(1);
 }// end loop
 
@@ -202,15 +154,17 @@ void processPerRow(){
       //run per row
     for(int noStop = 0;noStop < NO_STOP_PER_ROW;noStop++){
 
+        //make assumption that first stop of the row is perfect. 
+        
         int rightDist =  getSonarRight();
         int leftDist =  getSonarLeft();
         int wallOffset = rightDist - leftDist; // make sure that the bot is parallel to
-      if(noStop == 0 && firstStart != true){// first stop
+      if(noStop == 0 && firstStart == false){// first stop
           lcd.clear();
           lcd.print("begin of 1 row");
-        driveto(12);
-      }else if(noStop == NO_STOP_PER_ROW-1&& firstStart != true){// last stop
-        if(abs(wallOffset) >= 3){
+        driveto(20);
+      }else if(noStop == NO_STOP_PER_ROW-1&& firstStart == false){// last stop
+        if(abs(wallOffset) >= wallOffsetThresh){
           lcd.clear();
           lcd.print("NP-last-go 5");
           lcd.setCursor(0,1);
@@ -223,8 +177,8 @@ void processPerRow(){
           driveto(5);
         }
         
-      }else if(firstStart != true){
-        if(abs(wallOffset) >= 3){
+      }else if(firstStart == false){
+        if(abs(wallOffset) >= wallOffsetThresh){
           lcd.clear();
           lcd.print("NP-mid-go 10");
           lcd.setCursor(0,1);
@@ -237,17 +191,20 @@ void processPerRow(){
           driveto(10);
         }
 
+          //check parallel everytime the bot stop 
+          lcd.clear();
+          lcd.print("Check Parall..");
+          int offBy = checkParallel(); 
+    
+          lcd.setCursor(0,1);
+          lcd.print(String("turn: ")+
+                String(offBy));
+                
       }
+      
       firstStart = false;
       
-      //check parallel everytime the bot stop 
-      lcd.clear();
-      lcd.print("Check Parall..");
-      int offBy = checkParallel(); 
-
-      lcd.setCursor(0,1);
-      lcd.print(String("turn: ")+
-                String(offBy));
+      
   
       // trigger the camera
 
@@ -255,7 +212,7 @@ void processPerRow(){
       //TODO:
       lcd.clear();
       lcd.print("Arm toReady");
-      toReady(); // arm to ready position
+//      toReady(); // arm to ready position
 
 
       
@@ -279,28 +236,28 @@ void processPerRow(){
       lcd.setCursor(2,1);
       lcd.print(String(packageToPi));
 
-      if(getDataStream(packageToPi)){
-        lcd.clear();
-        lcd.print("got package");
-      }else{
-        lcd.clear();
-        lcd.print("NA package ");
-      }
+//      if(getDataStream(packageToPi)){
+//        lcd.clear();
+//        lcd.print("got package");
+//      }else{
+//        lcd.clear();
+//        lcd.print("NA package ");
+//      }
       delay(1000);
       cameraArm.rest()  ;
-      delay(1000);
-      bool gotPackage = parseData();
-      if(gotPackage){
-        lcd.clear();
-        lcd.print("parsing Package");
-      }else{
-        lcd.clear();
-        lcd.print("no Package");
-      }
+//      delay(1000);
+//      bool gotPackage = parseData();
+//      if(gotPackage){
+//        lcd.clear();
+//        lcd.print("parsing Package");
+//      }else{
+//        lcd.clear();
+//        lcd.print("no Package");
+//      }
       
       lcd.setCursor(0,1);
       lcd.print("processing arm");
-      processRobotArm(gotPackage);
+//      processRobotArm(gotPackage);
 
       cameraArm.turn('l');
       
@@ -316,21 +273,22 @@ void processPerRow(){
       lcd.setCursor(2,1);
       lcd.print(String(packageToPi));
       
-      if(getDataStream(packageToPi)){
-        lcd.clear();
-        lcd.print("got package");
-      }else{
-        lcd.clear();
-        lcd.print("NA package ");
-      }
+//      if(getDataStream(packageToPi)){
+//        lcd.clear();
+//        lcd.print("got package");
+//      }else{
+//        lcd.clear();
+//        lcd.print("NA package ");
+//      }
       delay(1000);
-      cameraArm.rest()  ;
-      delay(1000);
+//      cameraArm.rest()  ;
+//      delay(1000);
       // go pci each ball.
-       processRobotArm(parseData());
+//       processRobotArm(parseData());
 
     }//end for NO STOP
 }// end processPerRow()
+
 /**
  * This function check if the bot is at the right position to turn.
  */
@@ -346,7 +304,7 @@ float getReadyToTurn(){
   // malfunction on the frontDist. 
   if(frontDist <= 0) return 404.0;
   
-  float distFix = (float)(frontDist - beforeTurnDist) / CM_TO_INCH; 
+  float distFix = (float)(frontDist - beforeTurnDist) / INCH_TO_CM; 
 
   lcd.clear();
   lcd.print(String("F")+String(frontDist));
