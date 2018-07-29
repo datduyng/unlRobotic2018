@@ -66,8 +66,9 @@ void turnLeftSequence();
 void turnRightSequence();
 
 void setup() {
- Serial.begin(115200);
 
+ // init serial communication between pi and arduino 
+ Serial.begin(115200);
 
  // sets the LCD's rows and colums:
  lcd.begin();
@@ -78,7 +79,7 @@ void setup() {
 
   //set sonar offset. 
   setSonarOffset(sonarOffset);//update offset 7/23/18
-//  Serial.begin(9600);
+  
   cameraArm.cameraArmBegin(6, 7);
   cameraArm.rest();
   
@@ -90,24 +91,24 @@ void setup() {
   lcd.print("Hello Friend! ");
   lcd.setCursor(0,1);
   lcd.print("I'm countin on u.....");
-   checkSonar(5000,100);
+  checkSonar(5000,100);
   
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   for(int i = 0; i < NO_ROW;i++){
-    //TODO:
-    delay(100);
 
+    delay(100);
     processPerRow();
 
     lcd.clear();
     lcd.print(String("end of row:")+String(i));
-    driveto(last_frame_to_wall);
-    // total move: 71.25 inches
-    // competition drive sequence go here .
 
+    // move from last frame to wall. 
+    driveto(last_frame_to_wall);
+
+    //check sonar to see rightt or left is open 
     int distComp = sonarDistComparator();
 
     lcd.clear();
@@ -238,7 +239,7 @@ void processPerRow(){
         
         int rightDist =  getSonarRight();
         int leftDist =  getSonarLeft();
-        int wallOffset = rightDist - leftDist; // make sure that the bot is parallel to
+        int wallOffset = (rightDist - leftDist)/2; // make sure that the bot is parallel to
       if(noStop == 0 && firstStart == false){// first stop
           lcd.clear();
           lcd.print("begin of 1 row");
@@ -254,7 +255,7 @@ void processPerRow(){
         else{
           lcd.clear();
           lcd.print("Par-last-go 5");
-          //driveto(5);
+          //driveto(last_dist_2_frame);
           drivetoSonarFeedback(last_dist_2_frame,'f',true);
         }
         
@@ -269,8 +270,8 @@ void processPerRow(){
         else{
           lcd.clear();
           lcd.print("Par-mid-go 10");
-//          driveto(10);
-          drivetoSonarFeedback(dist_2_frame,'f',true);
+//          driveto(dist_2_frame);
+          drivetoSonarFeedback(dist_2_frame,'b',true);
         }
 
           //check parallel everytime the bot stop 
@@ -373,7 +374,7 @@ float getReadyToTurn(){
   //13 cm from the side.s
 
   //checkParallel() before use getFrontSonar dist 
-//  checkParallel();
+  checkParallel();
   int frontDist = getSonarFront();
 
   //don't trust the reading 
