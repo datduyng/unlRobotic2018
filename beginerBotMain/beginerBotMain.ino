@@ -1,7 +1,7 @@
 /**
  * @Author Mechatronic(MECH857) Team + Robert Goldsworthy(modified by jul 26th, 2018)
  * modified by: Dat Nguyen(jul 28, 2018)  
- * 
+ * modified by: Cole Dempsey(jul 29, 2018)
  */
 //https://www.robotshop.com/en/parallax-aluminum-motor-mount-wheel-kit.html
 //144 encoder positions per revolution (0.14-inch of linear travel accuracy)
@@ -10,6 +10,10 @@
 //#include <SCC_Driver.h>
 #include <NewPing.h>
 #include <Sabertooth.h>
+#include <ballCoordinate.h>
+#include <botConst.h>
+#include <SCC4.h>
+
 
 //Set up Ultrasonic Sensors:
 #define SONAR_NUM 2      // Number of sensors.
@@ -47,6 +51,15 @@ bool turnbool = LOW;
 int turnCNT = 143;
 double drivecmd = -20;
 
+void toReady(); 
+void toRight();
+void toLeft();
+void RightOne();
+void RightTwo();
+void LeftOne();
+void LeftTwo();
+
+void depositItem(); //split and add toBasket()
 
 void setup() {
   Serial.begin(115200);
@@ -63,9 +76,37 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  for(int j = 0 ; j<NO_ROW; j++){
 
+    
+    for(int i = 0 ; i<NO_STOP_PER_ROW ; i++){
+      toReady();
+      toRight();
+      getDataStream();
+      parseData();
+      processArmRight();
+
+      delay(500)
+      
+      toReady();
+      toLeft();
+      getDataStream();
+      parseData();
+      processArmLeft();
+
+      delay(500)
+      forward(10); //move bot to next section, in inches
+      }
+      forward(5);
+      if ( j == 1 || j == 3 ){
+        turnleft();
+        else if ( j == 2 ){
+          turnright();
+          }
+      }
+  }
+  
 }
-
 
 
 Sabertooth ST(128);
@@ -93,6 +134,89 @@ cnt++;
 ST.drive(0);
 ST.turn(0);
 }
+
+void processArmRight(){
+  for(int i =0; i<numOfPoint; i++){
+      if(color[i] == 1 && y[i] == 1){ // red RightOne section
+
+          RightOne();
+          //openClaw();
+          closeClaw();
+
+          //TODO: change to deposit
+          depositItem(); //toBasket()
+      
+      }else if(color[i] == 1 && y[i] == 2){// red RightTwo section
+        
+        RightTwo();
+        //openClaw();
+        closeClaw();
+
+        depositItem(); //toBasket()
+
+      }else if(color[i] == 2 && y[i] == 1){// blue RightOne section
+
+          RightOne();
+          //openClaw();
+          closeClaw();
+
+          toRight(); //get rid of blue ball
+          
+      }else if(color[i] == 2 && y[i] == 2){// blue RightTwo section
+        
+        RightTwo();
+        //openClaw();
+        closeClaw();
+
+        toRight(); //get rid of blue ball
+
+      }else{
+        toReady()
+      }
+  }
+}
+
+void processArmLeft(){
+  for(int i =0; i<numOfPoint; i++){
+      if(color[i] == 1 && y[i] == 1){ // red RightOne section
+
+          LeftOne();
+          //openClaw();
+          closeClaw();
+
+          //TODO: change to deposit
+          depositItem(); //toBasket()
+      
+      }else if(color[i] == 1 && y[i] == 2){// red RightTwo section
+        
+        LeftTwo();
+        //openClaw();
+        closeClaw();
+
+        depositItem(); //toBasket()
+
+      }else if(color[i] == 2 && y[i] == 1){// blue RightOne section
+
+          LeftOne();
+          //openClaw();
+          closeClaw();
+
+          toLeft(); //get rid of blue ball
+          
+      }else if(color[i] == 2 && y[i] == 2){// blue RightTwo section
+        
+        LeftTwo();
+        //openClaw();
+        closeClaw();
+
+        toLeft(); //get rid of blue ball
+
+      }else{
+        toReady()
+      }
+  }
+}
+
 
 void turnleft(){
   ST.turn(6);
